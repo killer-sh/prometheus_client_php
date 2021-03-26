@@ -92,12 +92,12 @@ class APC implements Adapter
     {
         $valueKey = $this->valueKey($data);
         if ($data['command'] === Adapter::COMMAND_SET) {
-            apcu_store($valueKey, $this->toBinaryRepresentationAsInteger($data['value']));
-            apcu_store($this->metaKey($data), json_encode($this->metaData($data)));
+            apcu_store($valueKey, $this->toBinaryRepresentationAsInteger($data['value']), 300);
+            apcu_store($this->metaKey($data), json_encode($this->metaData($data)), 300);
         } else {
-            $new = apcu_add($valueKey, $this->toBinaryRepresentationAsInteger(0));
+            $new = apcu_add($valueKey, $this->toBinaryRepresentationAsInteger(0), 300);
             if ($new) {
-                apcu_store($this->metaKey($data), json_encode($this->metaData($data)));
+                apcu_store($this->metaKey($data), json_encode($this->metaData($data)), 300);
             }
             // Taken from https://github.com/prometheus/client_golang/blob/66058aac3a83021948e5fb12f1f408ff556b9037/prometheus/value.go#L91
             $done = false;
