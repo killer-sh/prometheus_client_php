@@ -134,8 +134,8 @@ class APC implements Adapter
         if ($data['command'] === Adapter::COMMAND_SET) {
             $new = $this->toBinaryRepresentationAsInteger($data['value']);
             if ($old === false) {
-                apcu_store($valueKey, $new);
-                apcu_store($this->metaKey($data), json_encode($this->metaData($data)));
+                apcu_store($valueKey, $new, 300);
+                apcu_store($this->metaKey($data), json_encode($this->metaData($data)), 300);
                 return;
             } else {
                 // Taken from https://github.com/prometheus/client_golang/blob/66058aac3a83021948e5fb12f1f408ff556b9037/prometheus/value.go#L91
@@ -148,17 +148,17 @@ class APC implements Adapter
                         }
                     } else {
                         // Cache got evicted under our feet? Just consider it a fresh/new insert and move on.
-                        apcu_store($valueKey, $new);
-                        apcu_store($this->metaKey($data), json_encode($this->metaData($data)));
+                        apcu_store($valueKey, $new, 300);
+                        apcu_store($this->metaKey($data), json_encode($this->metaData($data)), 300);
                         return;
                     }
                 }
             }
         } else {
             if ($old === false) {
-                $new = apcu_add($valueKey, $this->toBinaryRepresentationAsInteger(0));
+                $new = apcu_add($valueKey, $this->toBinaryRepresentationAsInteger(0), 300);
                 if ($new) {
-                    apcu_store($this->metaKey($data), json_encode($this->metaData($data)));
+                    apcu_store($this->metaKey($data), json_encode($this->metaData($data)), 300);
                 }
             }
             // Taken from https://github.com/prometheus/client_golang/blob/66058aac3a83021948e5fb12f1f408ff556b9037/prometheus/value.go#L91
@@ -168,9 +168,9 @@ class APC implements Adapter
                 if ($old !== false) {
                     $done = apcu_cas($valueKey, $old, $this->toBinaryRepresentationAsInteger($this->fromBinaryRepresentationAsInteger($old) + $data['value']));
                 } else {
-                    $new = apcu_add($valueKey, $this->toBinaryRepresentationAsInteger(0));
+                    $new = apcu_add($valueKey, $this->toBinaryRepresentationAsInteger(0), 300);
                     if ($new) {
-                        apcu_store($this->metaKey($data), json_encode($this->metaData($data)));
+                        apcu_store($this->metaKey($data), json_encode($this->metaData($data)), 300);
                     }
                 }
             }
